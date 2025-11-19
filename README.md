@@ -1,9 +1,21 @@
 # mijia-sensor-domoticz
 
-Adapted version of miflora (https://github.com/Tristan79/miflora) for the Xiaomi Mijia Bluetooth Temperature Humidity Sensor (MJ_HT_V1).
+New verison 2.0 from mijia-sensor-domoticz (https://github.com/pFenners/mijia-sensor-domoticz)
+Adapted version of miflora (https://github.com/basnijholt/miflora & https://github.com/Tristan79/miflora) for the Xiaomi Mijia Bluetooth Temperature Humidity Sensor (MJ_HT_V1).
 
 The Xiaomi Mijia sensor provides temperature and humidity over BLE.
 
+## Version2.0 Target enhancement
+- Copy the script to your `domoticz/plugins` directory and create a new hardware Xiami Mijia Sensor.
+- Via the shell command, run `sudo hcitool lescan` to find the MAC addres. The address will be listed with the name 'MJ_HT_V1'
+- Put the MacAddress and the device idx (index) and enjoy Temperature, Humidity and bat level update evry 30s.
+
+No more need to create a device, prior to the usage of the plugins.
+No more need to run the script via a crontab or whatever, Domoticvz run-it on each Hearthbeat period (by default 30s).
+
+---
+
+# Old Readme
 ## Preparing Domoticz
 Create a virtual sensor (Temperature & Humidity) in Domoticz for each of your Xiaomi Mijia sensors.
 
