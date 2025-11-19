@@ -8,9 +8,11 @@ from mijia.mijia_poller import MijiaPoller, \
 
 # Forum see: http://domoticz.com/forum/viewtopic.php?f=56&t=13306&hilit=mi+flora&start=20#p105255
 
+"""
 domoticzserver   = "127.0.0.1:8000"
 domoticzusername = ""
 domoticzpassword = ""
+"""
 
 # So id devices use: sudo hcitool lescan
 
@@ -19,7 +21,7 @@ domoticzpassword = ""
 # Create virtual sensors in dummy hardware
 # type temperature & humidity
 
-
+"""
 base64string = base64.encodestring(('%s:%s' % (domoticzusername, domoticzpassword)).encode()).decode().replace('\n', '')
 
 def domoticzrequest (url):
@@ -28,6 +30,41 @@ def domoticzrequest (url):
   request.add_header("Authorization", "Basic %s" % base64string)
   response = urllib.request.urlopen(request)
   return response.read()
+"""
+
+# New read function, input the macaddress, output a dict with {temp, hum, bat, comfort} values.
+def read(address, debug=False):
+	values = {'address': address, 'temp': None, 'hum': None, 'bat': None, 'comfort':None, 'name': None, 'firmware_version': None}
+
+	# Create Poller
+	poller = MijiaPoller(address)
+
+	# Poll device values
+	values['firmware_version'] = poller.firmware_version()
+	values['name'] = poller.name()
+	values['temp'] = poller.parameter_value(MI_TEMPERATURE)
+	values['hum'] = poller.parameter_value(MI_HUMIDITY)
+	values['bat'] = poller.parameter_value(MI_BATTERY)
+
+	# Evaluate comfort
+	values['comfort'] = "0"
+    if float(values['hum']) < 40:
+        values['comfort'] = "2"
+    elif float(values['hum']) <= 70:
+        values['comfort'] = "1"
+    elif float(values['hum']) > 70:
+        values['comfort'] = "3"
+
+	if debug:
+		print(f"Mi Sensor: {values['address']}")
+	    print(f"Firmware: {values['firmware_version']}")
+	    print(f"Name: {values['name']}")
+	    print(f"Temperature: {values['temp']}°C")
+	    print(f"Humidity: {values['hum']}%")
+	    print(f"Battery: {values['bat']}%")
+		print(f"Comfort: {values['comfort']}%")
+
+	return values
 
 def update(address,idx_temp):
 
@@ -89,11 +126,11 @@ def update(address,idx_temp):
 	
 
 print("\n1: updating")
-update("4C:65:A8:D0:4C:98","752")
-
-update("4C:65:A8:D0:26:D2","753")
-
-update("4C:65:A8:D0:57:2A","754")
+# manual testing via direct shell launch `# python domoticz_mijia.py`
+# update("4C:65:A8:D0:4C:98","752")
+# update("4C:65:A8:D0:26:D2","753")
+# update("4C:65:A8:D0:57:2A","754")
+read("4C:65:A8:D0:4C:98", debug=True)
 
 
 
