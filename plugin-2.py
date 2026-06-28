@@ -22,6 +22,7 @@ import json
 import base64
 import datetime
 import os
+import re
 # import domoticz_mijia
 
 class BasePlugin:
@@ -43,16 +44,28 @@ class BasePlugin:
 
     def onStart(self):
         Domoticz.Log("onStart called "+Parameters["Key"]) # Unique short name for the plugin, matches python filename.
-        self.macAddresses = [item.strip() for item in Parameters["Mode6"].split(',')]
+        self.macAddresses = self.parseMacList(Parameters["Mode6"])
         Domoticz.Log(f"MacAddress List : {self.macAddresses}")
         
         # Create devices
-        if len(Devices) == 0:
-            Domoticz.Log("Create device")
+        unit = 1
+        for mac in macs:
+            existing = self.findDevice(mac)
+            if existing is not None:
+                Domoticz.Log(f"{mac} already exists")
+                continue
+            while unit in Devices:
+                unit += 1
+            Domoticz.Device(
+                Name=f"Mijia_{mac}",
+                Unit=unit,
+                TypeName="Temp+Hum",
+                Used=0,
+                Description=mac
+            ).Create()
             # Domoticz.Device(Name="MIJIA", Unit=1, TypeName="Temp+Hum", Used=0).Create()
-            Domoticz.Log("Device created")
-        else:
-            Domoticz.Log(f"Device alreadey created : {len(Devices)}")
+            Domoticz.Log(f"Created device {mac}")
+            unit += 1
         
         #Set Heartbeat from 10s to 30s)
         #Domoticz.Heartbeat(30)
@@ -86,6 +99,28 @@ class BasePlugin:
             # else:
             #    Domoticz.Log(f"Device values {values}")
             #    Devices[1].Update(nValue=0,sValue=str(values['temp'] + ";" + values['hum'] + ";"+ values['comfort']),BatteryLevel=int(values['bat']))
+
+    def parseMacList(self, text):
+        macs = []
+        if not text:
+            return macs
+        parts = re.split(r'[\n,; ]+', text)
+        for p in parts:
+            p = p.strip().upper()
+            if p == "":
+                continue
+            p = p.replace("-", ":")
+            if re.match(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$', p):
+                macs.append(p)
+            else:
+                Domoticz.Error("Invalid MAC: {}".format(p))
+        return macs
+        
+    def findDevice(self, mac):
+        for unit in Devices:
+            if Devices[unit].Description.upper() == mac:
+                return unit
+        return None
 
 global _plugin
 _plugin = BasePlugin()
