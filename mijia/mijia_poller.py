@@ -52,7 +52,8 @@ def write_readnotif_ble(mac, handle, value, retries=3, timeout=20, adapter='hci0
                          current_thread())
             LOGGER.debug("Running gatttool with a timeout of %s",
                          timeout)
-
+			
+			# TODO : CHANGE preexec_fn, it's deprecated since python 3.8
             with Popen(cmd,
                        shell=True,
                        stdout=PIPE,
@@ -111,7 +112,8 @@ def read_ble(mac, handle, retries=3, timeout=20, adapter='hci0'):
                          current_thread())
             LOGGER.debug("Running gatttool with a timeout of %s",
                          timeout)
-
+			
+			# TODO : CHANGE preexec_fn, it's deprecated since python 3.8
             with Popen(cmd,
                        shell=True,
                        stdout=PIPE,
