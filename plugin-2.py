@@ -166,14 +166,14 @@ class BasePlugin:
     	values['bat'] = poller.parameter_value(MI_BATTERY)
     
     	# Evaluate comfort
-    	values['comfort'] = "0"
+        values['comfort'] = "0"
         if float(values['hum']) < 40:
             values['comfort'] = "2"
         elif float(values['hum']) <= 70:
             values['comfort'] = "1"
         elif float(values['hum']) > 70:
             values['comfort'] = "3"
-    	return values
+        return values
 
 global _plugin
 _plugin = BasePlugin()
