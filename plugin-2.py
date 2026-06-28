@@ -49,7 +49,7 @@ class BasePlugin:
         
         # Create devices
         unit = 1
-        for mac in macs:
+        for mac in self.macAddresses:
             existing = self.findDevice(mac)
             if existing is not None:
                 Domoticz.Log(f"{mac} already exists")
