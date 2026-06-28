@@ -152,7 +152,7 @@ class BasePlugin:
                 return unit
         return None
 
-    def read(self, address, debug=False):
+    def read(self, address):
     	values = {'address': address, 'temp': None, 'hum': None, 'bat': None, 'comfort':None, 'name': None, 'firmware_version': None}
     
     	# Create Poller
@@ -173,16 +173,6 @@ class BasePlugin:
             values['comfort'] = "1"
         elif float(values['hum']) > 70:
             values['comfort'] = "3"
-    
-    	if debug:
-    		print(f"Mi Sensor: {values['address']}")
-    	    print(f"Firmware: {values['firmware_version']}")
-    	    print(f"Name: {values['name']}")
-    	    print(f"Temperature: {values['temp']}°C")
-    	    print(f"Humidity: {values['hum']}%")
-    	    print(f"Battery: {values['bat']}%")
-    		print(f"Comfort: {values['comfort']}%")
-    
     	return values
 
 global _plugin
