@@ -23,7 +23,7 @@ import base64
 import datetime
 import os
 import re
-# import domoticz_mijia
+from mijia.mijia_poller import MijiaPoller, MI_HUMIDITY, MI_TEMPERATURE, MI_BATTERY
 
 class BasePlugin:
   
@@ -99,6 +99,36 @@ class BasePlugin:
             # else:
             #    Domoticz.Log(f"Device values {values}")
             #    Devices[1].Update(nValue=0,sValue=str(values['temp'] + ";" + values['hum'] + ";"+ values['comfort']),BatteryLevel=int(values['bat']))
+        ###
+            for unit in Devices:
+                device = Devices[unit]
+                # MAC address is stored in the device description
+                mac = device.Description.strip()
+                if mac == "":
+                    continue
+                try:
+                    values = self.read(self.macAddress)
+        
+                    if values['temp'] is None:
+                        Domoticz.Log(f"No Temp value for {mac}")
+                        continue
+                    if values['hum'] is None:
+                        Domoticz.Log(f"No Humidity value for {mac}")
+                        continue
+                    if values['comfort'] is None:
+                        Domoticz.Log(f"No Comfort value for {mac}")
+                        continue
+                    if values['bat'] is None:
+                        Domoticz.Log(f"No Battery value for {mac}")
+                        continue
+        
+                    # Update the device
+                    device.Update(nValue=0,sValue=str(values['temp'] + ";" + values['hum'] + ";"+ values['comfort']),BatteryLevel=int(values['bat']))
+                    # DEBUG
+                    Domoticz.Log(f"Updated {device.Name} ({mac}) -> {values}")
+        
+                except Exception as e:
+                    Domoticz.Error(f"Error reading {mac} : {e}")
 
     def parseMacList(self, text):
         macs = []
@@ -121,6 +151,39 @@ class BasePlugin:
             if Devices[unit].Description.upper() == mac:
                 return unit
         return None
+
+    def read(self, address, debug=False):
+    	values = {'address': address, 'temp': None, 'hum': None, 'bat': None, 'comfort':None, 'name': None, 'firmware_version': None}
+    
+    	# Create Poller
+    	poller = MijiaPoller(address)
+    
+    	# Poll device values
+    	values['firmware_version'] = poller.firmware_version()
+    	values['name'] = poller.name()
+    	values['temp'] = poller.parameter_value(MI_TEMPERATURE)
+    	values['hum'] = poller.parameter_value(MI_HUMIDITY)
+    	values['bat'] = poller.parameter_value(MI_BATTERY)
+    
+    	# Evaluate comfort
+    	values['comfort'] = "0"
+        if float(values['hum']) < 40:
+            values['comfort'] = "2"
+        elif float(values['hum']) <= 70:
+            values['comfort'] = "1"
+        elif float(values['hum']) > 70:
+            values['comfort'] = "3"
+    
+    	if debug:
+    		print(f"Mi Sensor: {values['address']}")
+    	    print(f"Firmware: {values['firmware_version']}")
+    	    print(f"Name: {values['name']}")
+    	    print(f"Temperature: {values['temp']}°C")
+    	    print(f"Humidity: {values['hum']}%")
+    	    print(f"Battery: {values['bat']}%")
+    		print(f"Comfort: {values['comfort']}%")
+    
+    	return values
 
 global _plugin
 _plugin = BasePlugin()
