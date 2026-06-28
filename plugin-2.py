@@ -57,7 +57,7 @@ class BasePlugin:
             while unit in Devices:
                 unit += 1
             Domoticz.Device(
-                Name=f"Mijia_{mac}",
+                Name=f"{mac}",
                 Unit=unit,
                 TypeName="Temp+Hum",
                 Used=0,
