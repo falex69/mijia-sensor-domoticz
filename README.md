@@ -20,6 +20,13 @@ The address will be listed with the name 'MJ_HT_V1'
 
 Note down the MAC Address for the sensor.
 
+If needed and if you got an error with hcitool, run the checklit :
+```bash
+hciconfig -> Check if hci0 port UP+RUNNING or DOWN
+rfkill list -> check if hci0 port is soft and/or hard blocked
+sudo rfkill unblock bluetooth 
+```
+
 ## Edit the domoticz_mijia.py script
 Enter your domoticz connection details in the varibles at the top of the script.
 
