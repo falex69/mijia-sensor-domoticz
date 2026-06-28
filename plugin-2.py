@@ -66,9 +66,6 @@ class BasePlugin:
             # Domoticz.Device(Name="MIJIA", Unit=1, TypeName="Temp+Hum", Used=0).Create()
             Domoticz.Log(f"Created device {mac}")
             unit += 1
-        
-        #Set Heartbeat from 10s to 30s)
-        #Domoticz.Heartbeat(30)
 
     def onStop(self):
         Domoticz.Log("onStop called")
@@ -90,45 +87,35 @@ class BasePlugin:
 
     def onHeartbeat(self):
         Domoticz.Log("onHeartbeat called")
-        self.Heartbeat = self.Heartbeat + 1
-        if self.Heartbeat == 3:
-            self.Heartbeat = 0
-            # values = domoticz_mijia.read(self.macAddress)
-            # if ((values['temp'] == None) or (values['hum'] == None) or (values['bat'])):
-            #     Domoticz.Error("None value received, Device not updated")
-            # else:
-            #    Domoticz.Log(f"Device values {values}")
-            #    Devices[1].Update(nValue=0,sValue=str(values['temp'] + ";" + values['hum'] + ";"+ values['comfort']),BatteryLevel=int(values['bat']))
-        ###
-            for unit in Devices:
-                device = Devices[unit]
-                # MAC address is stored in the device description
-                mac = device.Description.strip()
-                if mac == "":
+        for unit in Devices:
+            device = Devices[unit]
+            # MAC address is stored in the device description
+            mac = device.Description.strip()
+            if mac == "":
+                continue
+            try:
+                values = self.read(self.macAddress)
+    
+                if values['temp'] is None:
+                    Domoticz.Log(f"No Temp value for {mac}")
                     continue
-                try:
-                    values = self.read(self.macAddress)
-        
-                    if values['temp'] is None:
-                        Domoticz.Log(f"No Temp value for {mac}")
-                        continue
-                    if values['hum'] is None:
-                        Domoticz.Log(f"No Humidity value for {mac}")
-                        continue
-                    if values['comfort'] is None:
-                        Domoticz.Log(f"No Comfort value for {mac}")
-                        continue
-                    if values['bat'] is None:
-                        Domoticz.Log(f"No Battery value for {mac}")
-                        continue
-        
-                    # Update the device
-                    device.Update(nValue=0,sValue=str(values['temp'] + ";" + values['hum'] + ";"+ values['comfort']),BatteryLevel=int(values['bat']))
-                    # DEBUG
-                    Domoticz.Log(f"Updated {device.Name} ({mac}) -> {values}")
-        
-                except Exception as e:
-                    Domoticz.Error(f"Error reading {mac} : {e}")
+                if values['hum'] is None:
+                    Domoticz.Log(f"No Humidity value for {mac}")
+                    continue
+                if values['comfort'] is None:
+                    Domoticz.Log(f"No Comfort value for {mac}")
+                    continue
+                if values['bat'] is None:
+                    Domoticz.Log(f"No Battery value for {mac}")
+                    continue
+    
+                # Update the device
+                device.Update(nValue=0,sValue=str(values['temp'] + ";" + values['hum'] + ";"+ values['comfort']),BatteryLevel=int(values['bat']))
+                # DEBUG
+                Domoticz.Log(f"Updated {device.Name} ({mac}) -> {values}")
+    
+            except Exception as e:
+                Domoticz.Error(f"Error reading {mac} : {e}")
 
     def parseMacList(self, text):
         macs = []
@@ -173,6 +160,7 @@ class BasePlugin:
             values['comfort'] = "1"
         elif float(values['hum']) > 70:
             values['comfort'] = "3"
+        
         return values
 
 global _plugin
