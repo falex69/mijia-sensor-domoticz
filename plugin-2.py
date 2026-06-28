@@ -44,7 +44,8 @@ class BasePlugin:
     def onStart(self):
         Domoticz.Log("onStart called "+Parameters["Key"]) # Unique short name for the plugin, matches python filename.
         self.macAddresses = [item.strip() for item in Parameters["Mode6"].split(',')]
-                
+        Domoticz.Log(f"MacAddress List : {self.macAddresses}")
+        
         # Create devices
         if len(Devices) == 0:
             Domoticz.Log("Create device")
