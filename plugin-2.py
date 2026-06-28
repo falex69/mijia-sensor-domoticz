@@ -140,17 +140,17 @@ class BasePlugin:
         return None
 
     def read(self, address):
-    	values = {'address': address, 'temp': None, 'hum': None, 'bat': None, 'comfort':None, 'name': None, 'firmware_version': None}
+        values = {'address': address, 'temp': None, 'hum': None, 'bat': None, 'comfort':None, 'name': None, 'firmware_version': None}
     
-    	# Create Poller
-    	poller = MijiaPoller(address)
+        # Create Poller
+        poller = MijiaPoller(address)
     
-    	# Poll device values
-    	values['firmware_version'] = poller.firmware_version()
-    	values['name'] = poller.name()
-    	values['temp'] = poller.parameter_value(MI_TEMPERATURE)
-    	values['hum'] = poller.parameter_value(MI_HUMIDITY)
-    	values['bat'] = poller.parameter_value(MI_BATTERY)
+        # Poll device values
+        values['firmware_version'] = poller.firmware_version()
+        values['name'] = poller.name()
+        values['temp'] = poller.parameter_value(MI_TEMPERATURE)
+        values['hum'] = poller.parameter_value(MI_HUMIDITY)
+        values['bat'] = poller.parameter_value(MI_BATTERY)
         values['comfort'] = "0"
         return values
 
