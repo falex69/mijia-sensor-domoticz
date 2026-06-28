@@ -94,16 +94,13 @@ class BasePlugin:
             if mac == "":
                 continue
             try:
-                values = self.read(self.macAddress)
+                values = self.read(self.macAddresses)
     
                 if values['temp'] is None:
                     Domoticz.Log(f"No Temp value for {mac}")
                     continue
                 if values['hum'] is None:
                     Domoticz.Log(f"No Humidity value for {mac}")
-                    continue
-                if values['comfort'] is None:
-                    Domoticz.Log(f"No Comfort value for {mac}")
                     continue
                 if values['bat'] is None:
                     Domoticz.Log(f"No Battery value for {mac}")
